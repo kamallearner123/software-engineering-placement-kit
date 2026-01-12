@@ -75,6 +75,8 @@ This placement training program is designed to equip students with the technical
 - **Curriculum Details:** See [`Docs/PlacementTrainingCirriculumDetailsCareerBrook.pdf`](./Docs/PlacementTrainingCirriculumDetailsCareerBrook.pdf)
 - **Module READMEs:** Each module has its own README with specific learning objectives
 
+- **Path for Materials:** https://drive.google.com/drive/folders/1Xvjg6PSbipUZBlL1JfVxz807TMGQZbRo?usp=sharing
+
 ## 🎯 Learning Objectives
 
 By completing this training program, you will:

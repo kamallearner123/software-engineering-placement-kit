@@ -102,6 +102,6 @@ Students are encouraged to:
 
 ---
 
-**Prepared by:** CareerBrook Training Team  
+**Prepared by:** Apt Computing Labs, Bangalore 
 **Last Updated:** January 2026  
-**Institution:** NMIT
+**Institution:** NMIT,

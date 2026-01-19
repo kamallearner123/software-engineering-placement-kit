@@ -1,6 +1,6 @@
-# NMIT Placement Training 2026
+# SE Placement Training 2026
 
-Welcome to the **NMIT Placement Training Repository**! This repository contains comprehensive training materials, sample programs, and resources for the 40-hour placement training program based on the CareerBrook curriculum.
+Welcome to the **SE Placement Training Repository**! This repository contains comprehensive training materials, sample programs, and resources for the 40-hour placement training program based on the CareerBrook curriculum.
 
 ## 📚 Curriculum Overview
 
@@ -104,4 +104,4 @@ Students are encouraged to:
 
 **Prepared by:** Apt Computing Labs, Bangalore 
 **Last Updated:** January 2026  
-**Institution:** NMIT,
+**Institution:** SE,

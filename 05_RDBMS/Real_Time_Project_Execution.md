@@ -62,4 +62,90 @@ Alex's "Cheat Sheet" for when things go wrong:
 4.  **"DB is filling up"** -> Time to look at **Vertical Scaling** (more RAM) or **Horizontal Partitioning** (Splitting large tables by date).
 
 ---
+
+## 🛠️ Hands-on Lab: Building QuickCart with SQLite3
+
+Now, let's put theory into practice. We will build the foundational schema for QuickCart using the SQLite CLI.
+
+### Step 0: Open SQLite
+In your terminal, type:
+```bash
+sqlite3 quickcart.db
+```
+
+### Step 1: Define the Structure (DDL)
+We need a **Customers** table and an **Orders** table with a relationship.
+```sql
+-- Enable Foreign Key support in SQLite
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE Customers (
+    customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT UNIQUE
+);
+
+CREATE TABLE Orders (
+    order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_id INTEGER,
+    order_date DATE,
+    amount DECIMAL(10,2),
+    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
+);
+```
+
+### Step 2: Add Sample Data (DML)
+```sql
+INSERT INTO Customers (name, email) VALUES ('Alice Johnson', 'alice@example.com');
+INSERT INTO Customers (name, email) VALUES ('Bob Smith', 'bob@example.com');
+
+INSERT INTO Orders (customer_id, order_date, amount) VALUES (1, '2024-04-21', 150.50);
+INSERT INTO Orders (customer_id, order_date, amount) VALUES (1, '2024-04-22', 45.00);
+INSERT INTO Orders (customer_id, order_date, amount) VALUES (2, '2024-04-22', 90.00);
+```
+
+### Step 3: Query the Data (DQL)
+Let's see who ordered what and how much they spent.
+```sql
+.mode column
+.headers on
+
+SELECT 
+    c.name, 
+    o.order_date, 
+    o.amount 
+FROM Customers c
+JOIN Orders o ON c.customer_id = o.customer_id
+WHERE o.amount > 50;
+```
+
+**Expected Output:**
+```text
+name           order_date  amount
+-------------  ----------  ----------
+Alice Johnson  2024-04-21  150.5
+Bob Smith      2024-04-22  90.0
+```
+
+### Step 4: Maintenance & Updates (DML/DDL)
+Imagine Bob changes his name and we need to add a "Status" column.
+```sql
+-- DDL: Add new column
+ALTER TABLE Orders ADD COLUMN status TEXT DEFAULT 'Pending';
+
+-- DML: Update existing record
+UPDATE Customers SET name = 'Robert Smith' WHERE customer_id = 2;
+
+-- DQL: Verify
+SELECT name FROM Customers WHERE customer_id = 2;
+```
+
+**Expected Output:**
+```text
+name
+------------
+Robert Smith
+```
+
+---
 *The moral of the story? A database is a living thing. Choose Postgres for reliability, index early, and never skip your backups.*

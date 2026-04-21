@@ -61,91 +61,156 @@ Alex's "Cheat Sheet" for when things go wrong:
 3.  **"Duplicate Data"** -> Check Unique Constraints and see if a transaction failed to rollback.
 4.  **"DB is filling up"** -> Time to look at **Vertical Scaling** (more RAM) or **Horizontal Partitioning** (Splitting large tables by date).
 
+## 🧪 Comprehensive Practical Lab: SQL Mastery with SQLite3
+
+This lab is designed for both **Windows** (PowerShell/CMD) and **Linux/macOS** users. SQLite is the perfect "playground" because it doesn't require a heavy server setup.
+
+### Step 0: Environment Setup
+1.  **Linux/macOS**: Open Terminal and type `sqlite3 quickcart.db`.
+2.  **Windows**: 
+    -   Download `sqlite-tools` from [sqlite.org](https://sqlite.org/download.html).
+    -   Open PowerShell/CMD in that folder and type `.\sqlite3.exe quickcart.db`.
+
+Once inside, you will see the `sqlite>` prompt.
+
 ---
 
-## 🛠️ Hands-on Lab: Building QuickCart with SQLite3
-
-Now, let's put theory into practice. We will build the foundational schema for QuickCart using the SQLite CLI.
-
-### Step 0: Open SQLite
-In your terminal, type:
-```bash
-sqlite3 quickcart.db
-```
-
-### Step 1: Define the Structure (DDL)
-We need a **Customers** table and an **Orders** table with a relationship.
+### Step 1: Schema Architecture (DDL)
+We are building a robust system. We need **referential integrity**.
 ```sql
--- Enable Foreign Key support in SQLite
+-- Vital: SQLite ignores foreign keys by default. Enable them!
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE Customers (
     customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    email TEXT UNIQUE
+    email TEXT UNIQUE,
+    city TEXT DEFAULT 'New York'
+);
+
+CREATE TABLE Products (
+    product_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    price DECIMAL(10,2) CHECK (price > 0)
 );
 
 CREATE TABLE Orders (
     order_id INTEGER PRIMARY KEY AUTOINCREMENT,
     customer_id INTEGER,
-    order_date DATE,
-    amount DECIMAL(10,2),
-    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
+    product_id INTEGER,
+    order_date DATE DEFAULT CURRENT_DATE,
+    quantity INTEGER CHECK (quantity > 0),
+    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id),
+    FOREIGN KEY (product_id) REFERENCES Products(product_id)
 );
 ```
 
-### Step 2: Add Sample Data (DML)
-```sql
-INSERT INTO Customers (name, email) VALUES ('Alice Johnson', 'alice@example.com');
-INSERT INTO Customers (name, email) VALUES ('Bob Smith', 'bob@example.com');
+---
 
-INSERT INTO Orders (customer_id, order_date, amount) VALUES (1, '2024-04-21', 150.50);
-INSERT INTO Orders (customer_id, order_date, amount) VALUES (1, '2024-04-22', 45.00);
-INSERT INTO Orders (customer_id, order_date, amount) VALUES (2, '2024-04-22', 90.00);
+### Step 2: Data Population (DML)
+Let's add some complexity.
+```sql
+INSERT INTO Customers (name, email, city) VALUES 
+('Alice', 'alice@gmail.com', 'London'),
+('Bob', 'bob@yahoo.com', 'Mumbai'),
+('Charlie', 'charlie@outlook.com', 'London');
+
+INSERT INTO Products (title, price) VALUES 
+('Laptop', 1200.00),
+('Mouse', 25.50),
+('Keyboard', 45.00);
+
+-- Alice buys a Laptop and a Mouse
+INSERT INTO Orders (customer_id, product_id, quantity) VALUES (1, 1, 1), (1, 2, 2);
+-- Bob buys a Keyboard
+INSERT INTO Orders (customer_id, product_id, quantity) VALUES (2, 3, 1);
 ```
 
-### Step 3: Query the Data (DQL)
-Let's see who ordered what and how much they spent.
+---
+
+### Step 3: Powerful Retrieval (DQL & Joins)
+Let's calculate the **Total Bill** for every order.
 ```sql
 .mode column
 .headers on
 
 SELECT 
-    c.name, 
-    o.order_date, 
-    o.amount 
-FROM Customers c
-JOIN Orders o ON c.customer_id = o.customer_id
-WHERE o.amount > 50;
-```
-
-**Expected Output:**
-```text
-name           order_date  amount
--------------  ----------  ----------
-Alice Johnson  2024-04-21  150.5
-Bob Smith      2024-04-22  90.0
-```
-
-### Step 4: Maintenance & Updates (DML/DDL)
-Imagine Bob changes his name and we need to add a "Status" column.
-```sql
--- DDL: Add new column
-ALTER TABLE Orders ADD COLUMN status TEXT DEFAULT 'Pending';
-
--- DML: Update existing record
-UPDATE Customers SET name = 'Robert Smith' WHERE customer_id = 2;
-
--- DQL: Verify
-SELECT name FROM Customers WHERE customer_id = 2;
-```
-
-**Expected Output:**
-```text
-name
-------------
-Robert Smith
+    o.order_id, 
+    c.name AS customer, 
+    p.title AS item, 
+    (p.price * o.quantity) AS subtotal
+FROM Orders o
+INNER JOIN Customers c ON o.customer_id = c.customer_id
+INNER JOIN Products p ON o.product_id = p.product_id;
 ```
 
 ---
+
+### Step 4: Aggregations & Grouping
+Who is our most valuable customer? Let's group by customer name.
+```sql
+SELECT 
+    c.name, 
+    COUNT(o.order_id) as total_orders, 
+    SUM(p.price * o.quantity) as total_spent
+FROM Customers c
+LEFT JOIN Orders o ON c.customer_id = o.customer_id
+LEFT JOIN Products p ON o.product_id = p.product_id
+GROUP BY c.name
+ORDER BY total_spent DESC;
+```
+*Note: Charlie will show `NULL` or `0` for orders because he hasn't bought anything yet. This shows the power of `LEFT JOIN` over `INNER JOIN`.*
+
+---
+
+### Step 5: The Subquery Challenge
+Find products that are priced **above the average** product price.
+```sql
+SELECT title, price 
+FROM Products 
+WHERE price > (SELECT AVG(price) FROM Products);
+```
+
+---
+
+### Step 6: ACID Transactions (The Safety Net)
+Imagine we want to swap an order's product. This must be **atomic**.
+```sql
+BEGIN TRANSACTION;
+
+-- Step A: Delete the old order line
+DELETE FROM Orders WHERE order_id = 1;
+
+-- Step B: Insert the new order line
+INSERT INTO Orders (customer_id, product_id, quantity) VALUES (1, 3, 5);
+
+-- If everything looks good:
+COMMIT;
+-- If you made a mistake: ROLLBACK;
+```
+
+---
+
+### Step 7: Views (Saving Complex Logic)
+Instead of typing that massive 3-way join every time, save it as a **View**.
+```sql
+CREATE VIEW OrderSummary AS
+SELECT o.order_id, c.name, p.title, (p.price * o.quantity) as bill
+FROM Orders o
+JOIN Customers c ON o.customer_id = c.customer_id
+JOIN Products p ON o.product_id = p.product_id;
+
+-- Now simply query the view:
+SELECT * FROM OrderSummary WHERE bill > 100;
+```
+
+---
+
+### Step 8: Finishing the Session
+To see all your tables: `.tables`
+To see the schema of a specific table: `.schema Customers`
+To exit SQLite: `.exit` or `.quit`
+
+---
+*The moral of the story? A database is a living thing. Choose Postgres for reliability, index early, and never skip your backups.*
 *The moral of the story? A database is a living thing. Choose Postgres for reliability, index early, and never skip your backups.*

@@ -164,16 +164,49 @@ Imagine a **Vehicles** table:
 4.  **Composite Key**: `(Area_Code, Slot_No)` in a parking lot. Two columns together identify a single spot.
 5.  **Super Key**: `(VIN, Color, Model)`. Any set that includes a unique identifying key.
 
-### SQL Constraints Implementation
+### SQL Constraints Implementation: A Rigorous Deep-Dive
+
+Let’s break down a "Gold Standard" table definition to understand how integrity is enforced at the database level.
+
 ```sql
 CREATE TABLE Products (
     pid INT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,        -- Cannot be empty
-    sku VARCHAR(20) UNIQUE,           -- Must be different for every row
-    price DECIMAL(10,2) CHECK (price > 0), -- Must be positive
-    stock INT DEFAULT 0               -- Fallback value if not specified
+    name VARCHAR(50) NOT NULL,
+    sku VARCHAR(20) UNIQUE,
+    price DECIMAL(10,2) CHECK (price > 0),
+    stock INT DEFAULT 0
 );
 ```
+
+#### 1. Schema vs. Table vs. Rows
+-   **Schema (Blueprint)**: Defines the structure (DDL).
+-   **Table (Structure)**: `Products` is the entity within the schema.
+-   **Rows (Data)**: The actual products stored (DML).
+
+#### 2. Column-by-Column Explanation
+
+| Column Definition | Significance | Properties & Behaviors |
+| :--- | :--- | :--- |
+| `pid INT PRIMARY KEY` | Product ID (Identity) | Unique + NOT NULL + Automatically Indexed. No duplicates allowed. |
+| `name VARCHAR(50) NOT NULL` | Product Name (Mandatory) | Max 50 chars. Prevents empty "ghost" products. Note: NULL is not the same as an empty string. |
+| `sku VARCHAR(20) UNIQUE` | Barcode/Serial (Business ID) | Must be unique across all rows. Allows multiple NULLs in many engines (like Postgres). |
+| `price DECIMAL(10,2)` | Currency (Precision) | `(10,2)` means 10 total digits, 2 after decimal. Max value: `99,999,99.99`. |
+| `CHECK (price > 0)` | Integrity Rule | Enforces business logic: Price must be positive. Enforced in MySQL 8.0+, Postgres, and SQL Server. |
+| `stock INT DEFAULT 0` | Inventory (Initial State) | If no value is provided during INSERT, it defaults to 0. Only applies if the column is omitted. |
+
+#### 3. Testing Constraints (Valid vs. Invalid Cases)
+
+-   ✅ **Valid Row**: `(1, 'Laptop', 'SKU001', 50000.00, 10)`
+-   ❌ **Invalid (Duplicate PK)**: `(1, 'Mouse', 'SKU002', 500.00, 5)` — Fails because `pid=1` already exists.
+-   ❌ **Invalid (NULL name)**: `(2, NULL, 'SKU003', 1000.00, 5)` — Fails `NOT NULL` constraint.
+-   ❌ **Invalid (Duplicate SKU)**: `(3, 'Keyboard', 'SKU001', 1500.00, 3)` — Fails `UNIQUE` constraint.
+-   ❌ **Invalid (Negative Price)**: `(4, 'Monitor', 'SKU004', -2000.00, 2)` — Fails `CHECK` constraint.
+-   ✅ **Valid (Missing Stock)**: `(5, 'USB Cable', 'SKU005', 100.00)` — Result: `stock` becomes `0` (Default).
+
+#### 4. Advanced "Pro" Notes
+1.  **Checking timing**: `DEFAULT` only triggers if the column is **omitted** from the `INSERT` statement. If you explicitly pass `NULL`, it will store `NULL` (unless also marked `NOT NULL`).
+2.  **Indexing**: `PRIMARY KEY` usually creates a **Clustered Index**, meaning the physical data on disk is sorted by the PK for maximum search speed.
+3.  **Check Support**: Historically, SQLite and older MySQL versions ignored `CHECK` constraints (they were parsed but not enforced). Modern versions are strictly compliant.
 
 ---
 

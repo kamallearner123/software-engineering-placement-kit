@@ -7,13 +7,11 @@
 
 This module introduces relational database concepts and SQL (Structured Query Language). You'll learn database design principles, master SQL queries, and understand how to work with relational data effectively.
 
-## 📂 Folder Structure
+## 📂 Essential Resources
 
-- [📚 RDBMS Mastery Guide](file:///home/kamal/Documents/1.GitHub/software-engineering-placement-kit/05_RDBMS/RDBMS_Mastery_Guide.md) - **(Start Here)** Comprehensive theory and examples.
-- [📝 Assignments](file:///home/kamal/Documents/1.GitHub/software-engineering-placement-kit/05_RDBMS/Assignments.md) - Practice tasks to test your knowledge.
-- [💡 Interview Questions](file:///home/kamal/Documents/1.GitHub/software-engineering-placement-kit/05_RDBMS/Interview_Questions.md) - Curated list of common SQL interview problems.
-- [📁 Database Basics](file:///home/kamal/Documents/1.GitHub/software-engineering-placement-kit/05_RDBMS/01_Database_Basics/) - Deep dive into core concepts.
-- [📁 SQL Queries](file:///home/kamal/Documents/1.GitHub/software-engineering-placement-kit/05_RDBMS/02_SQL_Queries/) - Advanced query patterns.
+- [🚀 RDBMS Ultimate Mastery Guide](file:///home/kamal/Documents/1.GitHub/software-engineering-placement-kit/05_RDBMS/RDBMS_Ultimate_Mastery_Guide.md) - **(Start Here)** Comprehensive theory and SQL.
+- [🎬 Real-time Project Execution](file:///home/kamal/Documents/1.GitHub/software-engineering-placement-kit/05_RDBMS/Real_Time_Project_Execution.md) - The story of a startup's database evolution.
+- [🤝 Interview Simulation](file:///home/kamal/Documents/1.GitHub/software-engineering-placement-kit/05_RDBMS/Interview_Simulation.md) - A masterclass in answering technical RDBMS questions.
 
 ## 🎯 Learning Objectives
 

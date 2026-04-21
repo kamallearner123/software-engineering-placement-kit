@@ -7,19 +7,21 @@ Welcome to the definitive resource for Relational Database Management Systems. T
 ## 📑 Table of Contents
 1.  [Introduction to Databases & DBMS](#1-introduction)
 2.  [ACID Properties & Transactions](#2-acid-properties)
-3.  [Database Relationships Visualized](#3-relationships)
-4.  [ER Modeling & Deep Dive (Library Case Study)](#4-er-modeling)
-5.  [Key Concepts & SQL Constraints](#5-keys-constraints)
-6.  [SQL Sub-languages (DDL, DML, DCL, TCL)](#6-sql-sub-languages)
-7.  [Data Querying Mastery (DQL)](#7-querying)
-8.  [Joins: Connecting the Dots](#8-joins)
-9.  [Aggregations & Grouping](#9-aggregations)
-10. [Subqueries & Performance](#10-subqueries)
-11. [Normalization: The Strategy of Storage](#11-normalization)
-12. [Advanced Objects (Indexes, Views, Triggers)](#12-advanced-objects)
-13. [Python Integration (Drivers & ORMs)](#13-python-integration)
-14. [Consolidated Interview Q&A (50+ Questions)](#14-interview-qa)
-15. [Final Practice: Assignments & MCQs](#15-practice)
+3.  [SQLite vs. MySQL vs. PostgreSQL (Deep Comparison)](#3-db-comparison)
+4.  [Database Relationships Visualized](#4-relationships)
+5.  [ER Modeling & Deep Dive (Library Case Study)](#5-er-modeling)
+6.  [Key Concepts & SQL Constraints](#6-keys-constraints)
+7.  [SQL Sub-languages (DDL, DML, DCL, TCL)](#7-sql-sub-languages)
+8.  [Data Querying Mastery (DQL)](#8-querying)
+9.  [Joins: Connecting the Dots](#9-joins)
+10. [Aggregations & Grouping](#10-aggregations)
+11. [Subqueries & Performance](#11-subqueries)
+12. [Normalization: The Strategy of Storage](#12-normalization)
+13. [Advanced Objects (Indexes, Views, Triggers)](#13-advanced-objects)
+14. [Python Integration (Drivers & ORMs)](#14-python-integration)
+15. [Consolidated Interview Q&A (50+ Questions)](#15-interview-qa)
+16. [Final Practice: Assignments & MCQs](#16-practice)
+17. [Miscellaneous: The Internal Architecture of RDBMS](#17-internals)
 
 ---
 
@@ -63,7 +65,27 @@ COMMIT; -- Or ROLLBACK if something fails
 
 ---
 
-## <a name="3-relationships"></a>3. Database Relationships Visualized
+## <a name="3-db-comparison"></a>3. SQLite vs. MySQL vs. PostgreSQL (Deep Comparison)
+
+Choosing the right database is about matching the engine to the workload.
+
+| Feature | **SQLite** | **MySQL** | **PostgreSQL** |
+| :--- | :--- | :--- | :--- |
+| **Architecture** | Serverless (Single `.db` file) | Client-Server (Background Process) | Client-Server (Background Process) |
+| **Concurrency** | 1 Writer at a time (Database Lock) | High (Row-level Locking) | High (MVCC - No locking for reads) |
+| **Features** | Minimalistic, portable | High-speed, Web-standard | Advanced (GIS, JSONB, Arrays) |
+| **ACID** | Fully Compliant | Mostly Compliant (InnoDB) | Fully Compliant (Extremely strict) |
+| **Data Types** | Weak (Storage Classes) | Standard | Strong (Extensibility, Custom types) |
+| **Best For** | Mobile apps, IoT, Testing, CMS | Large-scale Web apps, WordPress | Enterprise, Data Analytics, Complex queries |
+
+### 🛑 When to use what?
+-   **Use SQLite** if you are building an Android/iOS app or a small desktop tool. It requires **zero setup** and travels with your code as a single file.
+-   **Use MySQL** if you are building a standard high-traffic web application (like a social media clone or e-commerce) where **read speed** is the absolute priority.
+-   **Use PostgreSQL** if your application involves **complex data analytical queries**, uses GIS (Geographic info), or needs a database that is "unbreakable" in terms of data consistency.
+
+---
+
+## <a name="4-relationships"></a>4. Database Relationships Visualized
 Relationships define how tables link together via keys.
 
 ### Type 1: One-to-One (1:1)
@@ -101,7 +123,7 @@ erDiagram
 
 ---
 
-## <a name="4-er-modeling"></a>4. ER Modeling & Deep Dive (Library Case Study)
+## <a name="5-er-modeling"></a>5. ER Modeling & Deep Dive (Library Case Study)
 The **Entity-Relationship Model** is the blueprint.
 -   **Entity**: Object (Student)
 -   **Attribute**: Detail (Student Name)
@@ -128,7 +150,7 @@ If we used one table, we'd have massive redundancy. Instead:
 
 ---
 
-## <a name="5-keys-constraints"></a>5. Key Concepts & SQL Constraints
+## <a name="6-keys-constraints"></a>6. Key Concepts & SQL Constraints
 ### The 5 Essential Keys
 1.  **Primary Key (PK)**: Unique and Non-NULL identifier (e.g., SSN).
 2.  **Candidate Key**: Potential PKs (e.g., Email, Passport No).
@@ -145,7 +167,7 @@ Rules enforced on columns to maintain integrity:
 
 ---
 
-## <a name="6-sql-sub-languages"></a>6. SQL Sub-languages (DDL, DML, DCL, TCL)
+## <a name="7-sql-sub-languages"></a>7. SQL Sub-languages (DDL, DML, DCL, TCL)
 | Language | Commands | Purpose |
 | :--- | :--- | :--- |
 | **DDL** (Definition) | `CREATE`, `ALTER`, `DROP`, `TRUNCATE` | Modify the **Schema** (Structure). |
@@ -156,7 +178,7 @@ Rules enforced on columns to maintain integrity:
 
 ---
 
-## <a name="7-querying"></a>7. Data Querying Mastery (DQL)
+## <a name="8-querying"></a>8. Data Querying Mastery (DQL)
 The `SELECT` statement is the heart of SQL.
 
 ```sql
@@ -174,7 +196,7 @@ LIMIT 5;
 
 ---
 
-## <a name="8-joins"></a>8. Joins: Connecting the Dots
+## <a name="9-joins"></a>9. Joins: Connecting the Dots
 Joins combine rows from two or more tables based on a related column.
 
 -   **INNER JOIN**: Returns only the intersection (common rows).
@@ -193,7 +215,7 @@ LEFT JOIN Books B ON I.isbn = B.isbn;
 
 ---
 
-## <a name="9-aggregations"></a>9. Aggregations & Grouping
+## <a name="10-aggregations"></a>10. Aggregations & Grouping
 Aggregate functions return a single value calculated from a set of values.
 -   `COUNT()`, `SUM()`, `AVG()`, `MIN()`, `MAX()`
 
@@ -210,7 +232,7 @@ HAVING AVG(salary) > 4000;
 
 ---
 
-## <a name="10-subqueries"></a>10. Subqueries & Performance
+## <a name="11-subqueries"></a>11. Subqueries & Performance
 A query inside a query.
 -   **Scalar Subquery**: Returns 1 value.
 -   **Correlated Subquery**: The inner query depends on the outer query (slower).
@@ -224,7 +246,7 @@ WHERE salary > (SELECT AVG(salary) FROM Employees);
 
 ---
 
-## <a name="11-normalization"></a>11. Normalization: The Strategy of Storage
+## <a name="12-normalization"></a>12. Normalization: The Strategy of Storage
 Organizing columns and tables of a database to ensure that their dependencies are properly enforced by database integrity constraints.
 
 ### The Anomalies (The "Bad" Stuff)
@@ -240,7 +262,7 @@ Organizing columns and tables of a database to ensure that their dependencies ar
 
 ---
 
-## <a name="12-advanced-objects"></a>12. Advanced Objects (Indexes, Views, Triggers)
+## <a name="13-advanced-objects"></a>13. Advanced Objects (Indexes, Views, Triggers)
 -   **Index**: B-Tree structure for fast search. Slower writes, faster reads.
 -   **View**: Virtual table. "Saved SELECT query."
 -   **Materialized View**: A view with its physical data saved (refreshed periodically).
@@ -248,7 +270,7 @@ Organizing columns and tables of a database to ensure that their dependencies ar
 
 ---
 
-## <a name="13-python-integration"></a>13. Python Integration (Drivers & ORMs)
+## <a name="14-python-integration"></a>14. Python Integration (Drivers & ORMs)
 ### Parameterized Queries (Security)
 Never do `f"SELECT ... WHERE id = {user_id}"` (SQL Injection)!
 Use parameters: `cursor.execute("SELECT ... WHERE id = ?", (user_id,))`.
@@ -270,7 +292,7 @@ def safe_issue(sid, isbn):
 
 ---
 
-## <a name="14-interview-qa"></a>14. Consolidated Interview Q&A (50+ Questions)
+## <a name="15-interview-qa"></a>15. Consolidated Interview Q&A (50+ Questions)
 ### Core Basics
 1.  **DBMS vs RDBMS?** (RDBMS uses relations/tables).
 2.  **What is a NULL value?** (Missing or unknown data, not 0 or space).
@@ -292,15 +314,87 @@ def safe_issue(sid, isbn):
 14. **What is denormalization?** (Deliberate redundancy for read speed).
 15. **Clustered vs Non-clustered index?** (Dictates physical order of data vs a separate look-up table).
 
-*(Full list truncated for brevity, see Appendix in source files)*
-
 ---
 
-## <a name="15-practice"></a>15. Final Practice: Assignments & MCQs
+## <a name="16-practice"></a>16. Final Practice: Assignments & MCQs
 1.  **ER Modelling**: Design a schema for "Smart Delivery" (Courier, Customer, Package).
 2.  **Queries**: Write a query for the 3rd highest salary without `LIMIT`.
 3.  **Transactions**: Write pseudocode for an ATM withdrawal.
 4.  **Joins**: List all customers who have never made a purchase.
+
+---
+
+## <a name="17-internals"></a>17. Miscellaneous: The Internal Architecture of RDBMS
+
+For a senior engineer, knowing SQL isn't enough. You must understand the "Engine" under the hood.
+
+### A. The Core Data Structure: B+ Trees
+Most RDBMS (MySQL InnoDB, Postgres) use **B+ Trees** for indexes. Unlike a standard Binary Tree where every node stores data, a B+ Tree is specialized for disk storage.
+
+-   **Internal Nodes**: Only store keys to "route" the search. Because they don't store row data, we can fit thousands of keys in one internal node (High Fan-out).
+-   **Leaf Nodes**: This is where the actual row pointers (or rows) live.
+-   **Linked Leaves**: All leaf nodes are connected in a doubly-linked list. This allows the DB to perform range queries (e.g., `WHERE id BETWEEN 10 AND 20`) by finding '10' and then simply following the links until it hits '20'.
+-   **Height ($H$):** A B+ Tree with a fan-out of 100 and height 3 can store $100^3 = 1,000,000$ records. This means finding any record takes exactly 3 disk reads.
+
+```mermaid
+graph TD
+    Root[Root: Keys 100, 200]
+    Root --> L1[Internal: Keys 50, 75]
+    Root --> L2[Internal: Keys 150, 175]
+    L1 --> Leaf1[Leaf: 1, 10, 20...]
+    L1 --> Leaf2[Leaf: 55, 60...]
+    Leaf1 -.-> Leaf2
+    Leaf2 -.-> Leaf3[Leaf: 80, 90...]
+```
+
+### B. Storage & File Operations (Pages and Blocks)
+Databases don't read "files"; they read **Pages** (typically 8KB or 16KB).
+-   **Buffer Pool**: A region in RAM. When you ask for data, the DB first checks if the page is in the Pool.
+-   **Page Fault**: If not in RAM, the DB pauses, goes to Disk, fetches the Page, and puts it in the Pool.
+
+```mermaid
+graph LR
+    User([User Query]) --> BP[Buffer Pool in RAM]
+    BP -- Hit --> Result
+    BP -- Miss/Fault --> Disk[(Disk Storage)]
+    Disk -- Fetch Page --> BP
+    BP -- LRU Eviction --> Disk
+```
+-   **LRU (Least Recently Used)**: If the Buffer Pool is full, the DB kicks out the oldest page to make room.
+
+### C. Maintaining Consistency: WAL & MVCC
+How different systems handle safety:
+
+-   **WAL (Write-Ahead Logging)**: 
+    -   **SQLite**: By default, SQLite used a "Rollback Journal." But in **WAL Mode**, it writes changes to a `-wal` file first. This allows multiple readers to read the main DB file while one person writes to the WAL file. High concurrency for SQLite!
+    -   **Postgres/MySQL**: Use WAL extensively to ensure Durability.
+-   **MVCC (Multi-Version Concurrency Control)**: 
+    -   **PostgreSQL**: Keeps old versions of rows in the main table. Requires "Vacuuming" to clean up eventually.
+    -   **MySQL (InnoDB)**: Uses a **Rollback Segment** in the Undo Log. It stores the old version of the data in a separate log so readers can see "the past" while writers update the present.
+
+### D. The Query Processor API
+Every database has a **Cursor API**. Here is how you interact with them in Python.
+
+#### SQLite3 (Standard Library)
+SQLite parses and executes queries in the same process as your app.
+```python
+import sqlite3
+# SQLite uses WAL for concurrency if enabled
+db = sqlite3.connect('app.db')
+db.execute("PRAGMA journal_mode=WAL;") 
+cursor = db.cursor()
+cursor.execute("SELECT * FROM users")
+```
+
+#### MySQL (Client-Server)
+MySQL requires a network driver. The `Optimizer` lives on the MySQL Server, not in your Python code.
+```python
+import mysql.connector
+# MySQL uses InnoDB's Buffer Pool for caching
+db = mysql.connector.connect(host="localhost", user="root", password="pw")
+cursor = db.cursor()
+cursor.execute("SELECT * FROM orders")
+```
 
 ---
 *End of Ultimate Guide. You are now prepared for RDBMS placement interviews.*

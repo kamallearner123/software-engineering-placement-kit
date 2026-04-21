@@ -206,7 +206,35 @@ SELECT * FROM OrderSummary WHERE bill > 100;
 
 ---
 
-### Step 8: Finishing the Session
+### Step 8: Proper Cleanup (DDL)
+When deleting tables that have relationships, **order matters**. You cannot delete a parent table if a child table is still referencing it.
+
+1.  **Drop the "Child" first** (Orders refers to both Customers and Products).
+2.  **Drop the Parents** next.
+
+```sql
+DROP TABLE Orders;
+DROP TABLE Customers;
+DROP TABLE Products;
+-- Also delete the view
+DROP VIEW OrderSummary;
+```
+
+### Step 9: Deleting the Database File
+SQLite is a file-based database. To "delete the database," you simply delete the `.db` file from your operating system.
+
+**1. Exit SQLite first**:
+```sql
+.exit
+```
+
+**2. Delete the file from terminal**:
+- **Linux/macOS**: `rm quickcart.db`
+- **Windows (PowerShell)**: `Remove-Item quickcart.db`
+
+---
+
+### Step 10: Summary of Commands 
 To see all your tables: `.tables`
 To see the schema of a specific table: `.schema Customers`
 To exit SQLite: `.exit` or `.quit`

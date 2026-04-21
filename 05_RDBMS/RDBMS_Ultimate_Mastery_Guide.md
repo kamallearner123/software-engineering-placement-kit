@@ -89,36 +89,44 @@ Choosing the right database is about matching the engine to the workload.
 Relationships define how tables link together via keys.
 
 ### Type 1: One-to-One (1:1)
-One record in A relates to one in B.
--   **Example**: **User & Passport**.
+Each record in Table A is related to exactly one in Table B.
+-   **Example 1**: **User & Passport**.
+-   **Example 2**: **Employee & Desk**. In a fixed-seating office, every employee has one desk.
 ```mermaid
 erDiagram
-    USER ||--|| PASSPORT : "has"
+    USER ||--|| PROFILE : "has"
+    EMPLOYEE ||--|| DESK : "assigned"
 ```
 
 ### Type 2: One-to-Many (1:N)
-One record in A relates to multiple in B.
--   **Example**: **Customer & Orders**. One customer can buy many things.
+The most common relation. One parent, many children.
+-   **Example 1**: **Customer & Orders**. One customer, many purchases.
+-   **Example 2**: **Blog Post & Comments**. One article, many reader comments.
 ```mermaid
 erDiagram
     CUSTOMER ||--o{ ORDER : "places"
+    POST ||--o{ COMMENT : "receives"
 ```
 
 ### Type 3: Many-to-Many (M:N)
-Multiple records in A relate to multiple in B. Requires a **Junction Table**.
--   **Example**: **Students & Courses**.
+Requires a **Junction Table** (Associative Table).
+-   **Example 1**: **Students & Courses**. One student many courses, one course many students.
+-   **Example 2**: **Authors & Books**. A book can have 3 authors, and an author writes many books.
 ```mermaid
 erDiagram
-    STUDENT ||--o{ ENROLLMENT : "takes"
-    COURSE ||--o{ ENROLLMENT : "includes"
+    STUDENT ||--o{ ENROLLMENT : "enrolled"
+    COURSE ||--o{ ENROLLMENT : "enrolled"
+    AUTHOR ||--o{ AUTHORSHIP : "writes"
+    BOOK ||--o{ AUTHORSHIP : "written_by"
 ```
 
 ### Type 4: Self-Referencing (Recursive)
-A table joins with itself.
--   **Example**: **Employee & Manager**.
+Joining a table to itself.
+-   **Example**: **Employee & Manager** (A manager is also an employee).
+-   **Example**: **Category & Subcategory** (Electronics -> Mobile -> Smartphone).
 ```mermaid
 erDiagram
-    EMPLOYEE ||--o{ EMPLOYEE : "manages"
+    EMPLOYEE ||--o{ EMPLOYEE : "reports_to"
 ```
 
 ---
@@ -129,52 +137,81 @@ The **Entity-Relationship Model** is the blueprint.
 -   **Attribute**: Detail (Student Name)
 -   **Relationship**: Link (Student *Issues* Book)
 
-### Case Study: Student–Book–Issue
-If we used one table, we'd have massive redundancy. Instead:
--   **Students Table**: `sid`, `name`, `email`
--   **Books Table**: `isbn`, `title`, `author`
--   **Issues Table**: `issue_id`, `sid` (FK), `isbn` (FK), `date`
+### Case Study: Student–Book–Inventory
+To handle **real-world complexity** (like multiple copies of the same book), we need more than 3 tables:
 
-**Visual Logic**:
-| sid | name |
-| :--- | :--- |
-| 1 | Alice |
+1.  **Students**: `sid` (PK), `name`, `membership_level`
+2.  **Books (Metadata)**: `isbn` (PK), `title`, `author`
+3.  **BookCopies (Physical Inventory)**: `copy_id` (PK), `isbn` (FK), `status` (Available/Damaged)
+4.  **Issues (Transactions)**: `issue_id` (PK), `sid` (FK), `copy_id` (FK), `due_date`
 
-| isbn | title |
-| :--- | :--- |
-| B101 | Python |
-
-| issue_id | sid | isbn |
+**Visual Data Flow**:
+| copy_id | isbn | status |
 | :--- | :--- | :--- |
-| 50 | 1 | B101 |
+| C-01 | ISBN-77 | Issued |
+| C-02 | ISBN-77 | Available |
+
+**Complex Logic**: When a student borrows a book, we don't just link to "The Book." we link to a specific `copy_id` and change its status to 'Issued'.
 
 ---
 
 ## <a name="6-keys-constraints"></a>6. Key Concepts & SQL Constraints
-### The 5 Essential Keys
-1.  **Primary Key (PK)**: Unique and Non-NULL identifier (e.g., SSN).
-2.  **Candidate Key**: Potential PKs (e.g., Email, Passport No).
-3.  **Foreign Key (FK)**: A PK from another table used to link data.
-4.  **Composite Key**: A PK made of multiple columns.
-5.  **Super Key**: Any set of columns that uniquely identifies a row.
+### The 5 Essential Keys with Examples
+Imagine a **Vehicles** table:
+1.  **Primary Key (PK)**: `VIN` (Vehicle Identification Number). Unique per car.
+2.  **Candidate Key**: `License_Plate_No`. Also unique, could have been the PK.
+3.  **Foreign Key (FK)**: `Owner_ID`. Points to the `People` table's Primary Key.
+4.  **Composite Key**: `(Area_Code, Slot_No)` in a parking lot. Two columns together identify a single spot.
+5.  **Super Key**: `(VIN, Color, Model)`. Any set that includes a unique identifying key.
 
-### SQL Constraints
-Rules enforced on columns to maintain integrity:
--   `NOT NULL`: Cannot be empty.
--   `UNIQUE`: No two rows can have the same value.
--   `DEFAULT`: Fallback value if none provided.
--   `CHECK`: Manual logic (e.g., `CHECK (age >= 18)`).
+### SQL Constraints Implementation
+```sql
+CREATE TABLE Products (
+    pid INT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,        -- Cannot be empty
+    sku VARCHAR(20) UNIQUE,           -- Must be different for every row
+    price DECIMAL(10,2) CHECK (price > 0), -- Must be positive
+    stock INT DEFAULT 0               -- Fallback value if not specified
+);
+```
 
 ---
 
 ## <a name="7-sql-sub-languages"></a>7. SQL Sub-languages (DDL, DML, DCL, TCL)
-| Language | Commands | Purpose |
-| :--- | :--- | :--- |
-| **DDL** (Definition) | `CREATE`, `ALTER`, `DROP`, `TRUNCATE` | Modify the **Schema** (Structure). |
-| **DML** (Manipulation)| `INSERT`, `UPDATE`, `DELETE` | Modify the **Data** inside. |
-| **DQL** (Query) | `SELECT` | Retrieve data. |
-| **DCL** (Control) | `GRANT`, `REVOKE` | Security and Permissions. |
-| **TCL** (Transaction)| `COMMIT`, `ROLLBACK`, `SAVEPOINT` | Manage ACID transactions. |
+Every SQL command falls into one of these buckets:
+
+#### A. DDL (Data Definition) - The Blueprint
+```sql
+CREATE TABLE Logs (id INT);        -- Build
+ALTER TABLE Logs ADD msg TEXT;     -- Modify
+TRUNCATE TABLE Logs;               -- Wipe data, keep structure
+DROP TABLE Logs;                   -- Delete everything
+```
+
+#### B. DML (Data Manipulation) - The Content
+```sql
+INSERT INTO Users VALUES (1, 'Eve');
+UPDATE Users SET name = 'Eve Online' WHERE id = 1;
+DELETE FROM Users WHERE id = 1;
+```
+
+#### C. DQL (Querying) - The Retrieval
+```sql
+SELECT name FROM Users WHERE id = 1;
+```
+
+#### D. DCL (Control) - The Security
+```sql
+GRANT SELECT ON Users TO HR_User;  -- Give permission
+REVOKE SELECT ON Users FROM Intern;-- Take back permission
+```
+
+#### E. TCL (Transaction) - The Safety
+```sql
+SAVEPOINT step1;                   -- Checkpoint
+ROLLBACK TO step1;                 -- Go back to checkpoint
+COMMIT;                            -- Finalize changes
+```
 
 ---
 

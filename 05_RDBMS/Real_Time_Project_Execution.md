@@ -206,21 +206,63 @@ SELECT * FROM OrderSummary WHERE bill > 100;
 
 ---
 
-### Step 8: Proper Cleanup (DDL)
+### Step 8: Multi-media & Metadata (Binary & Key-Value)
+Real-world projects often need to store flexible metadata (like technical specs) and multimedia (images/audio).
+
+#### A. Key-Value Pattern (Flexible Properties)
+Instead of adding 50 columns to `Products` for every possible attribute (Weight, Color, Voltage, etc.), we use a **Metadata** table.
+```sql
+CREATE TABLE ProductMetadata (
+    meta_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER,
+    key TEXT NOT NULL,
+    value TEXT NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES Products(product_id)
+);
+
+INSERT INTO ProductMetadata (product_id, key, value) VALUES 
+(1, 'RAM', '16GB'),
+(1, 'Color', 'Midnight Blue'),
+(3, 'SwitchType', 'Cherry MX-Red');
+```
+
+#### B. Handle Multimedia (BLOB vs. File Paths)
+- **BLOB**: Binary Large Object. You store the actual image bits in the DB.
+- **TEXT (Path)**: You store the image on a disk/server and the DB only stores the "address."
+
+```sql
+CREATE TABLE ProductMedia (
+    media_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER,
+    media_type TEXT, -- 'image', 'audio', 'video'
+    file_content BLOB, -- Use this for actual binary data
+    file_path TEXT,    -- Use this for the URL/path
+    FOREIGN KEY (product_id) REFERENCES Products(product_id)
+);
+
+-- Adding a path to an audio file
+INSERT INTO ProductMedia (product_id, media_type, file_path) 
+VALUES (3, 'audio', '/assets/audio/mechanical_click.mp3');
+```
+
+---
+
+### Step 9: Proper Cleanup (DDL)
 When deleting tables that have relationships, **order matters**. You cannot delete a parent table if a child table is still referencing it.
 
-1.  **Drop the "Child" first** (Orders refers to both Customers and Products).
+1.  **Drop the "Child" first** (Orders, Metadata, Media).
 2.  **Drop the Parents** next.
 
 ```sql
 DROP TABLE Orders;
+DROP TABLE ProductMetadata;
+DROP TABLE ProductMedia;
 DROP TABLE Customers;
 DROP TABLE Products;
--- Also delete the view
 DROP VIEW OrderSummary;
 ```
 
-### Step 9: Deleting the Database File
+### Step 10: Deleting the Database File
 SQLite is a file-based database. To "delete the database," you simply delete the `.db` file from your operating system.
 
 **1. Exit SQLite first**:
@@ -234,11 +276,10 @@ SQLite is a file-based database. To "delete the database," you simply delete the
 
 ---
 
-### Step 10: Summary of Commands 
+### Step 11: Summary of Commands 
 To see all your tables: `.tables`
 To see the schema of a specific table: `.schema Customers`
 To exit SQLite: `.exit` or `.quit`
 
 ---
-*The moral of the story? A database is a living thing. Choose Postgres for reliability, index early, and never skip your backups.*
 *The moral of the story? A database is a living thing. Choose Postgres for reliability, index early, and never skip your backups.*

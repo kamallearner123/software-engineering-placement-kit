@@ -282,4 +282,8 @@ To see the schema of a specific table: `.schema Customers`
 To exit SQLite: `.exit` or `.quit`
 
 ---
+### 📚 Additional Resources
+- [SQL Cheat Sheet (by DataQuest)](https://www.dataquest.io/cheat-sheet/sql-cheat-sheet/)
+
+---
 *The moral of the story? A database is a living thing. Choose Postgres for reliability, index early, and never skip your backups.*

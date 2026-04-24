@@ -80,3 +80,7 @@ See the `Resources/` directory in the root for cheat sheets and reference materi
 
 **Module Duration:** 12 hours  
 **Difficulty Level:** Beginner to Intermediate
+
+
+* MCQs *
+- Time Complexity: https://forms.gle/U172i3vTBhK2Rbnh9

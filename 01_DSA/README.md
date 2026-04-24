@@ -82,5 +82,5 @@ See the `Resources/` directory in the root for cheat sheets and reference materi
 **Difficulty Level:** Beginner to Intermediate
 
 
-* MCQs *
+## MCQs on DSA ##
 - Time Complexity: https://forms.gle/U172i3vTBhK2Rbnh9
